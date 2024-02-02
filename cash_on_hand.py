@@ -48,4 +48,27 @@ def processcohdata():
                 maxday = day
             prevcoh = coh
 
+    # output file path
+    fp = Path.cwd() / "summary_report.txt"
+    fp.touch()
+    with fp.open(mode="a", encoding="UTF-8") as file:
+        # Output based on the analysis
+        if decreases == 0:
+            file.write("[CASH SURPLUS] CASH ON EACH DAY IS HIGHER THAN THE PREVIOUS DAY\n")
+        elif increases == 0:
+            file.write("[CASH DEFICIT] CASH ON EACH DAY IS LOWER THAN THE PREVIOUS DAY\n")
+        else:
+            for day, amount in all_losses:
+                file.write(f"\n[CASH DEFICIT] DAY: {day}, AMOUNT: SGD {amount}")
+
+        # Finding the top 3 deficits
+        all_losses.sort(key=get_deficit_amount, reverse=True)  # Sort by deficit amount, descending
+        top_deficits = all_losses[:3]  # Take the top 3 elements
+
+        # Print the top 3 deficits
+        deficit_rank = ["HIGHEST CASH DEFICIT", "2ND HIGHEST CASH DEFICIT", "3RD HIGHEST CASH DEFICIT"]
+        for i, (day, amount) in enumerate(top_deficits):
+            title = deficit_rank[i] if i < len(deficit_rank) else f"{i+1}TH HIGHEST CASH DEFICIT"
+            file.write(f"\n[{title}] DAY: {day}, AMOUNT: SGD {amount}")
+
 
