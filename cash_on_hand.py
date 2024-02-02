@@ -1,3 +1,4 @@
+# pulling data from csv file
 from pathlib import Path
 import csv
 
@@ -6,7 +7,7 @@ def get_deficit_amount(deficit_record):
     return deficit_record[1]  # Assuming the second element is the deficit amount
 
 def processcohdata():
-    # create a file path to csv file
+    """ create a file path to csv file """
     fp = Path.cwd() / "csv_reports" / "Cash_On_Hand.csv"
 
     # initialize variables
@@ -20,25 +21,26 @@ def processcohdata():
     all_losses = []
     count = 0
 
-    # read the csv file
+    # read the csv file and skip header
     with fp.open(mode="r", encoding="UTF-8", newline="") as file:
         lists = csv.reader(file)
-        next(lists)  # skip header
+        next(lists)
 
         for alist in lists:
             if count <= 0:
                 count += 1
                 continue
-            day = alist[0]  # Assuming the first element of alist is the day
+             # day to be first printed out
+            day = alist[0]
             coh = int(alist[1])  # convert into int
             currentchange = coh - prevcoh
-            # Tally up the increments
+            # sorting the increments
             if coh > prevcoh:
                 increases += 1
-            # Tally up the decrements
+            # sorting the decrements
             if coh < prevcoh:
                 decreases += 1
-                # Append day first, then the absolute value of the deficit
+                # append day first, then the deficit
                 all_losses.append((day, abs(currentchange)))
                 if maxloss < abs(currentchange):
                     maxloss = abs(currentchange)
@@ -61,11 +63,11 @@ def processcohdata():
             for day, amount in all_losses:
                 file.write(f"\n[CASH DEFICIT] DAY: {day}, AMOUNT: SGD {amount}")
 
-        # Finding the top 3 deficits
+        # finding the top 3 deficits
         all_losses.sort(key=get_deficit_amount, reverse=True)  # Sort by deficit amount, descending
         top_deficits = all_losses[:3]  # Take the top 3 elements
 
-        # Print the top 3 deficits
+        # print the top 3 deficits
         deficit_rank = ["HIGHEST CASH DEFICIT", "2ND HIGHEST CASH DEFICIT", "3RD HIGHEST CASH DEFICIT"]
         for i, (day, amount) in enumerate(top_deficits):
             title = deficit_rank[i] if i < len(deficit_rank) else f"{i+1}TH HIGHEST CASH DEFICIT"
