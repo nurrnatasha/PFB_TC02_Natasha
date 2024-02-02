@@ -42,3 +42,26 @@ def processpaldata():
                 maxchange = currentchange
                 maxday = alist[0]
             prevpl = pl
+
+    # output file path
+    fp = Path.cwd() / "summary_report.txt"
+    fp.touch()
+    with fp.open(mode="a", encoding="UTF-8") as file:
+
+        if increases:
+            file.write( f"[NET PROFIT SURPLUS] PROFIT ON EACH DAY IS HIGHER THAN THE PREVIOUS DAY")
+        elif decreases:
+            file.write( f"[NET PROFIT DEFICIT] PROFIT ON EACH DAY IS LOWER THAN THE PREVIOUS DAY")
+        else:
+            for loss in all_losses:
+                file.write(f"\n[NET PROFIT DEFICIT] DAY: {loss[1]}, AMOUNT: SGD {loss[0]}")
+
+        # Sort the profit deficits to find the top 3
+        all_losses.sort(key=get_profit_deficit, reverse=True)  # Sort by deficit amount, descending
+        top_deficits = all_losses[:3]  # Take the top 3 elements
+
+        # Write the top 3 profit deficits to the file
+        deficit_titles = ["HIGHEST NET PROFIT DEFICIT", "2ND HIGHEST NET PROFIT DEFICIT", "3RD HIGHEST NET PROFIT DEFICIT"]
+        for i, (amount, day) in enumerate(top_deficits):
+            title = deficit_titles[i] if i < len(deficit_titles) else f"{i+1}TH HIGHEST NET PROFIT DEFICIT"
+            file.write (f"\n[{title}] DAY: {day}, AMOUNT: SGD {amount}")
